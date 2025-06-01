@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRECCO Restaurant</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            background: #f5f5f5;
+            color: #000;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header-image {
+            width: 100%;
+            height: 250px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250"><rect width="400" height="250" fill="%23e8e3d8"/><rect x="0" y="0" width="120" height="250" fill="%23c4956c"/><text x="200" y="130" text-anchor="middle" fill="%23666" font-size="16" font-family="system-ui">Restaurant Interior</text></svg>') center/cover;
+            position: relative;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            margin-top: -20px;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .restaurant-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .restaurant-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 12px;
+            opacity: 0.6;
+        }
+
+        .schedule {
+            color: #333;
+        }
+
+        .price {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .address {
+            color: #333;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #000;
+            color: white;
+        }
+
+        .description-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .description-link {
+            color: #007AFF;
+            text-decoration: none;
+        }
+
+        .chef-section {
+            margin: 30px 0;
+        }
+
+        .chef-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chef-icon {
+            width: 20px;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 50%;
+        }
+
+        .chef-dishes {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .dish-item {
+            min-width: 80px;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff9a56, #ff6b35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dish-item:nth-child(2) {
+            background: linear-gradient(135deg, #ffd93d, #ff9a56);
+        }
+
+        .dish-item:nth-child(3) {
+            background: linear-gradient(135deg, #6bcf7f, #4caf50);
+        }
+
+        .dish-item:nth-child(4) {
+            background: linear-gradient(135deg, #ff7043, #d84315);
+        }
+
+        .bottom-tabs {
+            display: flex;
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 4px;
+            margin: 20px 0;
+        }
+
+        .bottom-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bottom-tab.active {
+            background: white;
+            color: #000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .event-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="%23c4956c"/><rect x="10" y="10" width="40" height="40" fill="%23a0804a" rx="4"/></svg>');
+            float: left;
+            margin-right: 12px;
+        }
+
+        .event-date {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .event-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #000;
+        }
+
+        .event-price {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            clear: both;
+            padding-top: 8px;
+        }
+
+        .event-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .event-btn.primary {
+            background: #000;
+            color: white;
+            border-color: #000;
+        }
+
+        .event-icons {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .event-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .event-icon.yellow {
+            background: #ffd93d;
+        }
+
+        .reserve-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 360px;
+            padding: 16px;
+            background: #90EE90;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .reserve-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .event-time-price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .arrow-right {
+            margin-left: auto;
+            font-size: 18px;
+            color: #ccc;
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .reserve-button {
+                width: calc(100% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-image"></div>
+        
+        <div class="profile-card">
+            <h1 class="restaurant-title">GRECCO</h1>
+            
+            <p class="restaurant-description">
+                Средиземноморские завтраки и обеды.<br>
+                Средиземноморские завтраки и обеды.
+            </p>
+            
+            <div class="info-item">
+                <svg class="info-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM8 4.5a.5.5 0 0 0-1 0v3h-1a.5.5 0 0 0 0 1h1.5a.5.5 0 0 0 .5-.5v-3.5z"/>
+                </svg>
+                <div class="schedule">
+                    <div>пн-пт: 14:00 - 23:00</div>
+                    <div>сб-вс: 14:00 - 23:00</div>
+                    <div>31 дек: 10:00 - 05:00</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <svg class="info-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4V.5z"/>
+                </svg>
+                <span class="price">2000 ₽</span>
+            </div>
+            
+            <div class="info-item">
+                <svg class="info-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                </svg>
+                <span class="address">Наб. реки Фонтанки, 11</span>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('menu')">Меню</button>
+                <button class="tab-btn" onclick="switchTab('bar')">Бар</button>
+                <button class="tab-btn" onclick="switchTab('photo')">Фото</button>
+            </div>
+            
+            <p class="description-text">
+                Grecco – больше чем ресторан, это стиль жизни. 
+                Цельные свежие продукты с акцентом на овощах, 
+                сырах и морских деликатесах. <a href="#" class="description-link">ещё</a>
+            </p>
+            
+            <div class="chef-section">
+                <h3 class="chef-title">
+                    <div class="chef-icon"></div>
+                    Шеф рекомендует
+                </h3>
+                <div class="chef-dishes">
+                    <div class="dish-item"></div>
+                    <div class="dish-item"></div>
+                    <div class="dish-item"></div>
+                    <div class="dish-item"></div>
+                </div>
+            </div>
+            
+            <div class="bottom-tabs">
+                <button class="bottom-tab active" onclick="switchBottomTab('news')">Новости</button>
+                <button class="bottom-tab" onclick="switchBottomTab('events')">Анонсы</button>
+                <button class="bottom-tab" onclick="switchBottomTab('promo')">Акции</button>
+            </div>
+            
+            <div class="events-section">
+                <div class="event-card">
+                    <div class="event-image"></div>
+                    <div class="event-date">23 ноября в 19:00</div>
+                    <div class="event-title">Сэндвич-вечеринки по субботам</div>
+                    <div class="event-price">Стоимость: 2000 ₽</div>
+                    <div class="event-actions">
+                        <button class="event-btn">Подробнее</button>
+                        <div class="event-icons">
+                            <div class="event-icon">📞</div>
+                            <div class="event-icon yellow">Я</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="event-card">
+                    <div class="event-image"></div>
+                    <div class="event-date">23 ноября</div>
+                    <div class="event-title">Сэндвич-вечеринки по субботам</div>
+                    <div class="event-time-price">
+                        <span>🕐 14:00 - 17:00</span>
+                        <span>💳 2000 ₽</span>
+                        <span class="arrow-right">›</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: 100px;"></div>
+        </div>
+    </div>
+    
+    <button class="reserve-button" onclick="makeReservation()">
+        <svg class="reserve-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 3a1 1 0 011-1h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 10.846 4.632 12 6.414 12H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 2H6.28l-.31-1.243A1 1 0 005 0H3a1 1 0 000 2zm13 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+        </svg>
+        Забронировать
+    </button>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram?.WebApp;
+        
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#f5f5f5');
+            tg.setBackgroundColor('#f5f5f5');
+        }
+
+        // Переключение вкладок
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tg) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function switchBottomTab(tab) {
+            document.querySelectorAll('.bottom-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tg) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Бронирование
+        function makeReservation() {
+            if (tg) {
+                tg.HapticFeedback.impactOccurred('medium');
+                
+                const reservationData = {
+                    restaurant: 'GRECCO',
+                    address: 'Наб. реки Фонтанки, 11',
+                    timestamp: new Date().toISOString()
+                };
+                
+                tg.sendData(JSON.stringify(reservationData));
+                tg.showAlert('Запрос на бронирование отправлен!');
+            } else {
+                alert('Функция бронирования доступна только в Telegram');
+            }
+        }
+
+        // Обработка кликов по карточкам событий
+        document.querySelectorAll('.event-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.event-btn') && !e.target.closest('.event-icon')) {
+                    if (tg) {
+                        tg.HapticFeedback.impactOccurred('light');
+                        tg.showAlert('Открыть детали события');
+                    }
+                }
+            });
+        });
+
+        // Обработка кнопок в карточках
+        document.querySelectorAll('.event-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (tg) {
+                    tg.HapticFeedback.impactOccurred('light');
+                    if (btn.textContent === 'Подробнее') {
+                        tg.showAlert('Подробная информация о событии');
+                    }
+                }
+            });
+        });
+
+        // Обработка иконок в карточках
+        document.querySelectorAll('.event-icon').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (tg) {
+                    tg.HapticFeedback.impactOccurred('light');
+                    if (icon.textContent === '📞') {
+                        tg.showAlert('Позвонить в ресторан');
+                    } else if (icon.textContent === 'Я') {
+                        tg.showAlert('Добавить в Яндекс');
+                    }
+                }
+            });
+        });
+
+        // Обработка блюд шефа
+        document.querySelectorAll('.dish-item').forEach(dish => {
+            dish.addEventListener('click', function() {
+                if (tg) {
+                    tg.HapticFeedback.impactOccurred('light');
+                    tg.showAlert('Подробнее о блюде');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
